@@ -1,6 +1,6 @@
-# When this image is run, it will open with the bash prompt in 
-# the /app directory. The pipline.py script can be run via bash
-# by running `python pipeline.py`. 
+# When this image is run, it will use the entry point 
+# python pipeline.py to run the pipeline.py script
+# when the container is run
 
 FROM python:3.9
 
@@ -9,4 +9,4 @@ RUN pip install pandas
 WORKDIR /app
 COPY pipeline.py pipeline.py
 
-ENTRYPOINT [ "bash" ]
+ENTRYPOINT [ "python", "pipeline.py" ]
