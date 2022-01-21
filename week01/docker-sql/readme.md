@@ -1,4 +1,4 @@
-# Docker commands
+# Docker and PostgreSQL 
 ## Simple docker pipeline example
 With the [Dockerfile](Dockerfile) and [pipeline script](pipeline.py) in this directory, build and run the container with the following commands.
 
@@ -25,7 +25,7 @@ docker run -it test:pandas 2022-01-15
 ![alt txt](img/docker_run.PNG)
 
 
-# Running Postgres in Docker
+## Running Postgres in Docker
 
 We can also create a database that runs in a container using the Postgres docker image. The following command will create a postgres database running locally within a container. Note that I'm using the fish shell. Referencing the `volume` path on the host machine (ie `-v (pwd)/ny_taxi...`) will vary depending on the OS and shell. By defining this volume, data will persist outside of the container.
 
@@ -54,10 +54,11 @@ Data for January 2021 can be downloaded with `wget`:
 wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv
 ```
 
-As well as a data dictionary describing the columns: 
+As well as a data dictionary describing the columns and a zone lookup table
 
 ```
 wget https://www1.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf
+wget https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv
 ```
 
 There are about 1.4 million rows in the table.
@@ -66,7 +67,7 @@ There are about 1.4 million rows in the table.
 1369766 yellow_tripdata_2021-01.csv
 ```
 
-The notebook [`upload_data.ipynb`](upload_data.ipynb) contains Python code to connect to the locally running Postgres database using [SQLAlchemy](https://www.sqlalchemy.org/), read the csv, convert pickup and drop off time fields from text to datetime, define the schema of the table using [DDL](https://techterms.com/definition/ddl), create the table, and write all the data to the database. 
+The notebook [`upload_data.ipynb`](upload_data.ipynb) contains Python code to connect to the locally running Postgres database using [SQLAlchemy](https://www.sqlalchemy.org/), read the csv, convert pickup and drop off time fields from text to datetime, define the schema of the table using [DDL](https://techterms.com/definition/ddl), create the table, and write all the data to the database. I also added the zones table to the database.
 
 Once it's done, we can access the data in Postgres using `pgcli`. The `\dt` command in postgres is used to list tables:
 
@@ -128,4 +129,69 @@ Now when we connect to the server, we use the name of the Postgres container as 
 Now we have a fully featured graphical SQL manager that we can use to run admin tasks on the database and run queries using the Query Tool.
 
 ![alt txt](img/pgadmin.PNG)
+
+## Dockerizing the Data Pipeline Script
+Use nbconvert to convert the ingestion notebook into a script [ingest_data.py](ingest_data.py):
+
+```jupyter nbconvert --to=script upload_data.ipynb```
+
+Clean up the code to translate it from a notebook to a script and use the `argparse` library from the Python standard library to allow it to accept command line arguments.
+
+```
+python ingest_data.py /                                                            
+      --user=root \
+      --password=root \
+      --host=localhost \
+      --port=5432 \
+      --db=ny_taxi \
+      --yellow_taxi_table_name=yellow_taxi_data \
+      --yellow_taxi_url=https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv \
+      --zones_table_name=taxi_zone_lookup \
+      --zones_url=https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv
+```
+
+That works and the data is ingested into the database.
+
+Now we want to dockerize it so we make some changes to the [Dockerfile](Dockerfile), build the image 
+
+```docker build -t taxi_ingest:v001```
+
+And run the image passing the correct command line arguments. Pay close attention to the networking arguments here as they are different from above. localhost can not be used because the database is running on the docker network. You will need to know the docker conatiner name and the docker network it is running on. If you forgot, you can find the container name by running `docker ps`, and then inspect the container using `docker container inspect {container name}` to see a ton of info about the container including the docker network that it is connected to. This is only for running locally, however, when connecting to a database that is running in the cloud, you will provide a url to that database as the host.
+
+```
+docker run -it 
+  --network=pg-network\                     
+  taxi_ingest:v001      
+  --user=root \
+  --password=root \
+  --host=pg-database \
+  --port=5432 \
+  --db=ny_taxi \
+  --yellow_taxi_table_name=yellow_taxi_data \
+  --yellow_taxi_url=https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv \
+  --zones_table_name=taxi_zone_lookup \
+  --zones_url=https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv
+```
+
+
+  
+## Docker Compose
+
+Docker compose lets us codify the docker shell commands into a yaml file. This way we don't have to remember the correct sequence to run the network commands, and all of the flags and environment variables. 
+
+[Composerize](https://www.composerize.com/) is a handy website for converting shell commands into the correct yaml syntax.
+
+Since the containers are being launched from the same compose file, they are automatically part of the same network.
+
+To launch the containers, run:
+
+```docker-compose up```
+
+It can also be run in detatched mode:
+
+ ```docker-compose up -d```
+
+To tear them down:
+
+```docker-compose down```
 
