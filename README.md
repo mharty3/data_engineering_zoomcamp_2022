@@ -9,3 +9,5 @@
 ## My Course Notes
 ### [Week 1: Introduction & Prerequisites](week01)
 - [Docker and PostgreSQL](week01/docker-sql/)
+- [Google Cloud Platform and Terraform](week01/gcp-terraform/)
+
