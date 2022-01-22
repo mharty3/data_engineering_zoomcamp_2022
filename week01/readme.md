@@ -1,5 +1,5 @@
 # Week 1
 
-## [Docker and PostgreSQL](week01/docker-sql/)
+## [Docker and PostgreSQL](docker-sql/)
 
-## [Google Cloud Platform and Terraform](week01/gcp-terraform/)
+## [Google Cloud Platform and Terraform](gcp-terraform/)
