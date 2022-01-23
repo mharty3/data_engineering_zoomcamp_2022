@@ -1,9 +1,10 @@
 # Setting up Google Cloud and Terraform
 
 # What is terraform
-    * Open source tool for provisioning infrastructure resources
-    * Infrastructure as Code (IaC) - check in cloud infrastucture configuration to version control
-    * install terraform client: 
+* Open source tool for provisioning infrastructure resources
+* Infrastructure as Code (IaC) - check in cloud infrastucture configuration to version control
+* install terraform client: 
+
         ```
         curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
         sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -50,5 +51,29 @@
 * Enable these APIs for the google cloud project to allow local environment to interact with cloud environment's IAM
     * https://console.cloud.google.com/apis/library/iam.googleapis.com
     * https://console.cloud.google.com/apis/library/iamcredentials.googleapis.com
+
+# Terraform
+* Required Files:
+    * `.teraform-version`: defines the version of Terraform: 1.0.2
+    * `main.tf:` Define the resources needed
+        * `terraform` block
+            * Currently referenced as local. but in production, that will change to a bucket
+        * `provider` block
+            * Terraform relies on plugins called providers that allows it to interact with cloud providers, SaaS providers, and APIs. It provides a given set of resources types and data sources that terraform can manage for a given provider
+            * Credentials. Our credentials are set up as an environment variable so this line is commented out, but alternatively, credentials could be stored in the variables.tf file. 
+        * `resource` blocks represent resources like VMs, storage buckets, or data warehouses. Arguments can be something like machine size, storage size, names etc.
+    * `variables.tf` Defines runtime arguments that will be passed to terraform. Default values can be defined in which case a run time argument is not required.
+* Execution Steps
+    * `terraform init` - initialize and install
+    * `terraform plan` - match configuration changes against current state
+        * running this will prompt you for any variables that are not defined with a default 
+        * it is like a dry run and it will tell you what changes need to be made.
+    * `terraform apply` - apply changes to cloud
+        * running this will also prompt for any necessary variables and ask if you want to proceed
+        * this will create the resources in google cloud and you can see them in the cloud console!!!
+    * `terraform destroy` - Remove your stack from the cloud. This is very useful when developing. You can tear down the environment at the end of the day so you are not charged for running the resources when you aren't using them, and then re-apply them the next day. A big advantage of using something like terraform.
+
+    
+
 
 

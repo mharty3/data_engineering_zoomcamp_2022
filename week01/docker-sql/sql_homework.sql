@@ -1,4 +1,7 @@
 --- QUESTION 3
+-- How many taxi trips were there on January 15?
+-- Consider only trips that started on January 15.
+----------------------------------------------------------------------------------------------------------------
 SELECT COUNT(1)
 FROM yellow_taxi_data 
  WHERE (tpep_pickup_datetime::date = DATE '2021-01-15'
@@ -10,13 +13,13 @@ FROM yellow_taxi_data
 		AND
 		tpep_pickup_datetime::time <> '00:00:00'
 		)
---------------------------------------------------
+----------------------------------------------------------------------------------------------------------------
 -- QUESTION 3 option 2
+-- after clarificaton only to include trips beginning on the 15th
 SELECT *
 FROM yellow_taxi_data 
  WHERE tpep_pickup_datetime::date = DATE '2021-01-15' 
-        OR 
-       tpep_dropoff_datetime::date = DATE '2021-01-15'
+
 
 -- It turns out answering how many rides were on the 15th was trickier than
 -- I initially thought it would be: do you include only rides that were picked 
@@ -28,6 +31,8 @@ FROM yellow_taxi_data
 
 ----------------------------------------------------------------------------------------------------------------
 -- QUESTION 4
+-- Find the largest tip for each day. On which day it was the largest tip in January?
+----------------------------------------------------------------------------------------------------------------
 SELECT tpep_pickup_datetime::date
       ,MAX(tip_amount) as max_tip_amount
 FROM yellow_taxi_data as txd 
@@ -38,6 +43,8 @@ LIMIT 1;
 
 ----------------------------------------------------------------------------------------------------------------
 --QUESTION 5
+-- What was the most popular destination for passengers picked up in central park on January 14?
+----------------------------------------------------------------------------------------------------------------
 with zone_names AS
 
 (SELECT txd.pulocationid as pu_location_id
@@ -58,14 +65,8 @@ LIMIT 1
 
 ----------------------------------------------------------------------------------------------------------------
 -- QUESTION 6 attepmt 1
-SELECT pulocationid
-      ,dolocationid
-	  ,avg(total_amount) as avg_total
-FROM yellow_taxi_data txd
-GROUP BY txd.pulocationid, txd.dolocationid
-ORDER BY avg_total DESC
+-- What's the pickup-dropoff pair with the largest average price for a ride (calculated based on total_amount)?
 ----------------------------------------------------------------------------------------------------------------
--- attempt 2
 with zone_names AS
 (SELECT txd.pulocationid as pu_location_id
 	    ,txd.dolocationid as do_location_id
