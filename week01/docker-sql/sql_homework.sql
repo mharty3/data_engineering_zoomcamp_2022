@@ -1,7 +1,12 @@
 --- QUESTION 3
 -- How many taxi trips were there on January 15?
 -- Consider only trips that started on January 15.
+SELECT COUNT(1) 
+FROM yellow_taxi_data 
+WHERE tpep_pickup_datetime::date = DATE '2021-01-15' 
+-- 53,024
 ----------------------------------------------------------------------------------------------------------------
+-- First attempt at Q3 before clarification to only include trips that started on Jan. 15.
 SELECT COUNT(1)
 FROM yellow_taxi_data 
  WHERE (tpep_pickup_datetime::date = DATE '2021-01-15'
@@ -14,12 +19,6 @@ FROM yellow_taxi_data
 		tpep_pickup_datetime::time <> '00:00:00'
 		)
 ----------------------------------------------------------------------------------------------------------------
--- QUESTION 3 option 2
--- after clarificaton only to include trips beginning on the 15th
-SELECT *
-FROM yellow_taxi_data 
- WHERE tpep_pickup_datetime::date = DATE '2021-01-15' 
-
 
 -- It turns out answering how many rides were on the 15th was trickier than
 -- I initially thought it would be: do you include only rides that were picked 
