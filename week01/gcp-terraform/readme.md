@@ -86,7 +86,7 @@
 
     ```
 
-  * This command will create a public and private ssh key in the `~/.ssh` directory. **Never share the private key** To connect to a remote service, we will give the service the public key, and using encription techniques the remote service and our local computer will be able to securely authenticate each other
+  * This command will create a public and private ssh key in the `~/.ssh` directory. **Never share the private key**.  To connect to a remote service, we will give the service the public key, and using encription techniques the remote service and our local computer will be able to securely authenticate each other
   * To add the ssh key to GCP, go to Compute Engine, metadata (under settings), and ssh keys, and copy the contents of the public key file (`gcp.pub`). All instances in the project will be able to use this ssh key.
 
 * From the GCP Console select, compute engine, VM instances, and click create instance. 
@@ -98,35 +98,37 @@
 
     `ssh -i ~/.ssh/gcp michael@34.132.184.188`
 
-* Configure the instance
+* We can configure the ssh connection on the local machine (laptop) for a better experience. Inside of the .ssh directory, create a file called config with the following contents: 
+    
+    ```
+        Host de-zoomcamp
+            HostName 34.132.184.188
+            User michael
+            IdentityFile ~/.ssh/gcp
+    ```
+  Now to connect to the host with ssh, all we need to do is `ssh de-zoomcamp` rather than use all the additional arguments
+
+* Configure the VM instance
   * [Download Anaconda Installer](https://www.anaconda.com/products/individual)
 
     `wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh`
+
     `bash Anaconda3-2021.11-Linux-x86_64.sh`
 
     Accept license agreement and press enter to begin installation
   
-    * We can configure the ssh connection. inside of the .ssh directory, create a file called config with the following contents: 
-
-        ```
-            Host de-zoomcamp
-                HostName 34.132.184.188
-                User michael
-                IdentityFile ~/.ssh/gcp
-        ```
-
-        Now to connect to the host with ssh, all we need to do is `ssh de-zoomcamp`
 
     * When anaconda is finished, logout and log back in or run `source .bashrc`
-    * install the fish shell. Not necessary, but I like it.
 
-        ```bash
-        sudo apt-get install fish
-        curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
-        omf install agnoster
-        ```
+  * install the fish shell. Not necessary, but I like it.
 
-        Add `exec fish` to the end of the .bashrc file
+    ```bash
+    sudo apt-get install fish
+    curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
+    omf install agnoster
+    ```
+
+    Add `exec fish` to the end of the .bashrc file
 
   * Now install docker: 
 
@@ -162,7 +164,7 @@
     `wget https://releases.hashicorp.com/terraform/1.1.4/terraform_1.1.4_linux_amd64.zip`
     `unzip terraform_1.1.4_linux_amd64.zip`
 
-      * in order to use teraform we will need to copy the credentials json file over to the VM via sftp. So on the laptop, run:
+    * in order to use teraform we will need to copy the credentials json file over to the VM via sftp. So on the laptop, run:
 
       ```bash
       sftp
@@ -190,8 +192,8 @@
             User michael
             IdentityFile C:\Users\michael\.ssh\gcp
         ```
-* Connect to the remote host by clicking the little green square in the bottom left corner of VS Code, Connect to host, and select de-zoomcamp. Now our vs code is connected to the GCP VM!
+  * Connect to the remote host by clicking the little green square in the bottom left corner of VS Code, Connect to host, and select de-zoomcamp. Now our vs code is connected to the GCP VM!
 
-* Forward the port from vs code port forwarding for ports `5432` for postgres and `8080` for pgAdmin. I can access the pgAdmin in the browser, but I can't access `5432` with pgcli. I think it may be a wsl networking issue. Let's see if anyone on slack can help.
+  * Forward the port from vs code port forwarding for ports `5432` for postgres and `8080` for pgAdmin. I can access the pgAdmin in the browser, but I can't access `5432` with pgcli. I think it may be a wsl networking issue. Let's see if anyone on slack can help.
 
-* **DON"T FORGET TO STOP THE INSTANCE SO YOU WON'T BE CHARGED**
+* **DON"T FORGET TO STOP THE INSTANCE SO YOU WON'T BE CHARGED WHEN YOU AREN'T USING IT**
