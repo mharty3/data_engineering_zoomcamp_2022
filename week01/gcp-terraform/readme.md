@@ -73,7 +73,125 @@
         * this will create the resources in google cloud and you can see them in the cloud console!!!
     * `terraform destroy` - Remove your stack from the cloud. This is very useful when developing. You can tear down the environment at the end of the day so you are not charged for running the resources when you aren't using them, and then re-apply them the next day. A big advantage of using something like terraform.
 
-    
+# Setting up VM environment on GCP
+
+* [Video](https://www.youtube.com/watch?v=ae-CV2KfoN0&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=12)
+* First, we will need to create an SSH key in order to connect to the VM from our laptop [Google Documentation](https://cloud.google.com/compute/docs/connect/create-ssh-keys)
+  * Open a terminal and use the ssh-keygen command with the -C flag to create a new SSH key pair.
+
+    ```bash
+    ssh-keygen -t rsa -f ~/.ssh/KEY_FILENAME -C USER -b 2048
+
+    ssh-keygen -t rsa -f ~/.ssh/gcp -C michael -b 2048
+
+    ```
+
+  * This command will create a public and private ssh key in the `~/.ssh` directory. **Never share the private key** To connect to a remote service, we will give the service the public key, and using encription techniques the remote service and our local computer will be able to securely authenticate each other
+  * To add the ssh key to GCP, go to Compute Engine, metadata (under settings), and ssh keys, and copy the contents of the public key file (`gcp.pub`). All instances in the project will be able to use this ssh key.
+
+* From the GCP Console select, compute engine, VM instances, and click create instance. 
+  * Select a region near you. (us-central1 (Iowa) for me)
+  * Machine type (e2-standard-4 (4vCPU 16 GB memory))
+  * Boot disk. Select the OS and storage. (Ubuntu 20.04 LTS 30GB persistant storage)
+  * Click Create
+* Once it spins up, copy the external IP address to your laptop shell and ssh with the `-i` flag to indicate your private key file
+
+    `ssh -i ~/.ssh/gcp michael@34.132.184.188`
+
+* Configure the instance
+  * [Download Anaconda Installer](https://www.anaconda.com/products/individual)
+
+    `wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh`
+    `bash Anaconda3-2021.11-Linux-x86_64.sh`
+
+    Accept license agreement and press enter to begin installation
+  
+    * We can configure the ssh connection. inside of the .ssh directory, create a file called config with the following contents: 
+
+        ```
+            Host de-zoomcamp
+                HostName 34.132.184.188
+                User michael
+                IdentityFile ~/.ssh/gcp
+        ```
+
+        Now to connect to the host with ssh, all we need to do is `ssh de-zoomcamp`
+
+    * When anaconda is finished, logout and log back in or run `source .bashrc`
+    * install the fish shell. Not necessary, but I like it.
+
+        ```bash
+        sudo apt-get install fish
+        curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
+        omf install agnoster
+        ```
+
+        Add `exec fish` to the end of the .bashrc file
+
+  * Now install docker: 
+
+      `sudo apt-get update`
+      `sudo apt-get install docker.io`
+
+      run [these](https://github.com/sindresorhus/guides/blob/main/docker-without-sudo.md) commands **and then logout and log back in** so I don't have to type sudo everytime I use a docker command
+
+      `sudo groupadd docker`
+
+      `sudo gpasswd -a $USER docker`
+
+      `sudo service docker restart`
+
+  * Install docker-compose:
+    * Create a directory for storing binary files ~/bin and cd there
+    * `wget https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64 -O docker-compose`  NOTE: check for latest version
+    * `chmod +x docker-compose`
+    * add to path by adding this to the .bashrc file:
+
+      `export PATH="${HOME}/bin:${PATH}"`
+
+  * install pgcli
+
+      `conda install pgcli`
+
+      `pip install -U mycli`
+
+  * Clone my repo
+      `git clone https://github.com/mharty3/data_engineering_zoomcamp_2022.git`
+
+  * Install Teraform:
+    `wget https://releases.hashicorp.com/terraform/1.1.4/terraform_1.1.4_linux_amd64.zip`
+    `unzip terraform_1.1.4_linux_amd64.zip`
+
+      * in order to use teraform we will need to copy the credentials json file over to the VM via sftp. So on the laptop, run:
+
+      ```bash
+      sftp
+      mkdr .gcp
+      cd .gcp
+      put data-eng-zoomcamp-339...d0.json
+      ```
+
+      Then on the VM:
+      ```
+      set GOOGLE_APPLICATION_CREDENTIALS ~/.gcp/data-eng-zoomcamp-339102-195b653665d0.json
+      gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
+      ```
+
+      Run terraform commands as described above if needed.
 
 
+* Now let's configure VS Code to access the remote machine.
+* Install the remote extension for VS Code
+    * Because I'm working on WSL, I had do do a few extra steps here. It doesn't seem like I can connect to a remote host from VS code if I am already running VS Code in WSL since VS Code is using the remote extension to connect to WSL. so I had to copy my private key from the linux side (`~/.ssl/gcp`) to the windows side (`C:\Users\michael\.ssh\gcp`). And then modify my ssh host config file (`C:\Users\michael\.ssh\config`) to contain the following. Note I am pointing the to the identify file of the private key now located in the windows directory.
 
+        ``` bash
+        Host de-zoomcamp
+            HostName 34.132.184.188
+            User michael
+            IdentityFile C:\Users\michael\.ssh\gcp
+        ```
+* Connect to the remote host by clicking the little green square in the bottom left corner of VS Code, Connect to host, and select de-zoomcamp. Now our vs code is connected to the GCP VM!
+
+* Forward the port from vs code port forwarding for ports `5432` for postgres and `8080` for pgAdmin. I can access the pgAdmin in the browser, but I can't access `5432` with pgcli. I think it may be a wsl networking issue. Let's see if anyone on slack can help.
+
+* **DON"T FORGET TO STOP THE INSTANCE SO YOU WON'T BE CHARGED**
