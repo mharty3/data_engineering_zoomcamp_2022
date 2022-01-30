@@ -181,6 +181,8 @@
 
       Run terraform commands as described above if needed.
 
+      Note that in week 2 we moved  and renamed this file to `~/.google/credentials/google_credentials.json`
+
 
 * Now let's configure VS Code to access the remote machine.
 * Install the remote extension for VS Code
