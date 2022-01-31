@@ -88,9 +88,78 @@
   * Run `docker-compose up airflow-init` to run the initialization step. This will run database migrations and create the first user account with the username `airflow` and the password `airflow`
   * Run `docker-compose up` to start up airflow
   * Forward the port using VSCode and connect to localhost:8080 to see the airflow webserver
+  * You should now see a list of DAGs that are in the `./dags` folder
 
 # Ingesting Data to GCP with Airflow
 * [Video](https://www.youtube.com/watch?v=9ksX9REfL8w&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=19)
 
+  ## Airflow Concepts
+  Ref: https://airflow.apache.org/docs/apache-airflow/stable/concepts/overview.html
 
+  ### Key components
+  Airflow consists of several key components or services:
+
+  * **Web server**: GUI to inspect, trigger and debug the behaviour of DAGs and tasks. Available at http://localhost:8080. This is how you interact with your dags to manually trigger them, see how they ran, and inspect errors.
+
+  * **Scheduler**: Responsible for scheduling jobs. Handles both triggering & scheduled workflows, submits Tasks to the executor to run, monitors all tasks and DAGs, and then triggers the task instances once their dependencies are complete.
+
+  * **Worker**: This component executes the tasks given by the scheduler.
+
+  * **Metadata database** (postgres): Backend to the Airflow environment. Used by the scheduler, executor and webserver to store state.
+
+  * Other components (seen in docker-compose services):
+        **redis**: Message broker that forwards messages from scheduler to worker.
+        **flower**: The flower app for monitoring the environment. It is available at http://localhost:5555.
+        **airflow-init**: initialization service (customized as per this design)
+
+  All these services allow you to run Airflow with CeleryExecutor. For more information, see Architecture Overview.
+
+  ### Project Structure:
+
+  * `./dags` - DAG_FOLDER for DAG files (use ./dags_local for the local ingestion DAG)
+  * `./logs` - contains logs from task execution and scheduler.
+  * `./plugins` - for custom plugins
+
+  ### Workflow components
+
+  * **DAG**: Directed acyclic graph, specifies the dependencies between a set of tasks with explicit execution order, and has a beginning as well as an end. (Hence, “acyclic”)
+        DAG Structure: DAG Definition, Tasks (eg. Operators), Task Dependencies (control flow: >> or << )
+
+  * **Task**: a defined unit of work (aka, operators in Airflow). The Tasks themselves describe what to do, be it fetching data, running analysis, triggering other systems, or more.
+        Common Types: Operators (used in this workshop), Sensors, TaskFlow decorators
+        Sub-classes of Airflow's BaseOperator
+
+  * **DAG Run**: individual execution/run of a DAG
+        scheduled or triggered
+
+  * **Task Instance**: an individual run of a single task. Task instances also have an indicative state, which could be “running”, “success”, “failed”, “skipped”, “up for retry”, etc.
+        Ideally, a task should flow from none, to scheduled, to queued, to running, and finally to success.
+
+## Writing our own DAGs
+* [Video](https://www.youtube.com/watch?v=s2U8MWJH5xA&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=20)
+
+The resources above helped to get Airflow installed and started, but didn't really help me to know how to modify the example DAGs to fit my purpose or to write my own DAG. Watching Alexey start from scratch really helped in this video.
+
+Some key concepts:
+
+* Templating with Jinja:
+
+  Airflow DAGs support templating with [Jinja](https://jinja.palletsprojects.com/en/latest/), and the dag script has access to [several parameters](https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html) from airflow to use in the templates. For our purposes, we made use of the `execution_date` parameter that provides the date the DAG run was scheduled. Note that this is the "logical date," not the date the DAG was actually run. This allows us to set up templates for the url and file names we need based on the date the DAG is scheduled. 
+
+  ```python
+  DATASET_FILE_PREFIX = "yellow_tripdata_"
+  DATASET_FILE_TEMPLATE = DATASET_FILE_PREFIX + '{{ execution_date.strftime(\'%Y-%m\') }}.csv'
+  DATASET_URL = f"https://s3.amazonaws.com/nyc-tlc/trip+data/{DATASET_FILE_TEMPLATE}"
+  PARQUET_FILE = DATASET_FILE_TEMPLATE.replace('.csv', '.parquet')
+  ```
+
+* Schedule interval:
+  The DAG `schedule_interval` defines how often it will be run. There are several built in options like `@daily` or `@monthly` which will run at midnight (UTC) each night or on the first night of the month. You can also define it with a chron expression. Use [chrontab guru](https://crontab.guru/) to write and test the expression. 
+
+* Inspecting a worker:
+  Sometimes a task will fail. You can click on the failed task in the tree (click the little red square). This will open a dialog and you can check the logs there. Often this will be enough to figure out where the task went wrong. Sometimes you will need to look in the file structure of the worker to see what is going on. Use `docker ps` to get the container id of the worker container, and then exec into the container with bash using the following command: 
+
+  ```
+  docker exec -it <container-id> bash
+  ```
 
