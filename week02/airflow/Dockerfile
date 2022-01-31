@@ -34,6 +34,6 @@ RUN DOWNLOAD_URL="https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/goo
     && gcloud --version
 
 
-WORKDIR AIRFLOW_HOME
+WORKDIR $AIRFLOW_HOME
 
 USER 1002
