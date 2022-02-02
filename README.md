@@ -14,3 +14,5 @@
 ### [Week 2: Data Ingestion](week02)
  - Data Lakes
  - Data Pipeline Orchestration with Airflow
+
+### [Week 3: Data Warehouse and Big Query](week03)
