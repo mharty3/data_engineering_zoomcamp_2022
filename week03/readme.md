@@ -82,3 +82,19 @@
 [instructions](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_3_data_warehouse/extract_model.md)
 [gcloud tutorial](https://cloud.google.com/bigquery-ml/docs/export-model-tutorial)
 * This video demonstrates how to extract the model created in the last video from BQ and serve it using the `tensorflow/serving` docker image.
+
+# Big Query Workshop
+[Video](https://www.youtube.com/watch?v=lAxAhHNeGww&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=31)
+* This week in the workshop, we will extend our data pipelines created last week to move data from the data lake storage bucket into the Big Query Data Warehouse that we built in week 1 with Terraform.
+* We are able to query the data we loaded into BQ during week 1 and week 2 in the google cloud console.
+
+  ```SQL
+  SELECT * FROM `data-eng-zoomcamp-339102.trips_data_all.external_table` LIMIT 10
+  ```
+
+* Now let's work on writing the dags to move data from GCS to Big Query.
+* First copy the airflow directory from week02 to week03. We will be modifying those dags for our current exercise. Run `docker-compose down` for all of the containers on the VM. Then cd into week03 and run `docker-compose up` to spin up all of the services needed for this week. You can delete all the logs in the logs dir.
+* Using [last week's example dag](week03/airflow/dags/data_ingestion_gcs_dag.py) as a template, create a new dag called [gcs_to_bq_dag.py](week03/airflow/dags/gcs_to_bq_dag.py). Delete any unneceesary lines relating to the parquet or csv files as we won't be needing them. 
+
+
+
