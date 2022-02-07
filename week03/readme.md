@@ -1,6 +1,6 @@
 # Week 3: Data Warehouse
 
-[slides](https://www.linkedin.com/posts/michaelharty3_github-mharty3dataengineeringzoomcamp-activity-6893745899370102784-JsN0)
+[Slides](https://www.linkedin.com/posts/michaelharty3_github-mharty3dataengineeringzoomcamp-activity-6893745899370102784-JsN0)
 
 [Video](https://www.youtube.com/watch?v=jrHljAoD6nM&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=25)
 
@@ -57,3 +57,28 @@
 ## Internals of Big Query
 [Video](https://www.youtube.com/watch?v=eduHi1inM4s&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=28)
 
+* You don't need to know the internals of BQ in order to use it effectively. Just understand the above best practices, partitioning, and clustering
+* BQ uses storage called Colossus, which is very cheap. Most cost is reading data and running queries. aka compute.
+* The Jupiter network inside google data centers connects the compute to the storage in a 1TB/s network
+* The query execution engine is Dremel. It creates query structures and divides it into parts that can be run on separate nodes that fetch data from colossus and perform aggregations
+
+## Machine Learning in BQ
+[Video](https://www.youtube.com/watch?v=B-WtpB0PuG4&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=29)
+[BQ ML code](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_3_data_warehouse/big_query_ml.sql)
+
+* no python or java needed for ML in BQ, all you need to know is SQL and ML concepts and algos
+* Data does not need to be exported from BQ, all ML is conducted within the data warehouse
+* Pricing:
+
+  * Free: 10GB/month of storage, 1 TB/month data processed, ML create model first 10 GB per month is free
+  * after that cost vary by number of TB and type of model
+
+* In this video we will build a linear regression model based on the taxi data to predict `tip-amount`
+* BQ has some built in automatic functionality for feature engineering/preprocessing like standardization and onehot encoding and also manual processing steps
+* See the code linked above for an example of training a linear regression model
+
+## ML deployment
+[Video](https://www.youtube.com/watch?v=BjARzEWaznU&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=30)
+[instructions](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_3_data_warehouse/extract_model.md)
+[gcloud tutorial](https://cloud.google.com/bigquery-ml/docs/export-model-tutorial)
+* This video demonstrates how to extract the model created in the last video from BQ and serve it using the `tensorflow/serving` docker image.
