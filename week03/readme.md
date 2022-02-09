@@ -95,6 +95,11 @@
 * Now let's work on writing the dags to move data from GCS to Big Query.
 * First copy the airflow directory from week02 to week03. We will be modifying those dags for our current exercise. Run `docker-compose down` for all of the containers on the VM. Then cd into week03 and run `docker-compose up` to spin up all of the services needed for this week. You can delete all the logs in the logs dir.
 * Using [last week's example dag](week03/airflow/dags/data_ingestion_gcs_dag.py) as a template, create a new dag called [gcs_to_bq_dag.py](week03/airflow/dags/gcs_to_bq_dag.py). Delete any unneceesary lines relating to the parquet or csv files as we won't be needing them. 
+* Our dag will need three tasks:
+  1. gcs_to_gcs: to regorganize the "raw" data lake storage bucket into more organized file structure locations
+  2. gcs_to_bq_ext: create an external table in BQ
+  3. bq_ext_to_part: create partitioned table in BQ
 
+* try looping over yellow and green to do both types. See Sejal's example
 
 
