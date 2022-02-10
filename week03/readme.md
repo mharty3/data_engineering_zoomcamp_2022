@@ -100,6 +100,9 @@
   2. gcs_to_bq_ext: create an external table in BQ
   3. bq_ext_to_part: create partitioned table in BQ
 
-* try looping over yellow and green to do both types. See Sejal's example
+* try looping over yellow and green to do both types. See Sejal's example near the end of the video
+
+# Homerwork
+See [homework.md](homework.md)
 
 
