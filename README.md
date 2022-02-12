@@ -20,3 +20,5 @@
   - Ingesting data into BQ Data Warehouse with Airflow
   - Optimizing performance and cost with partitioning and clustering in BQ
   - Machine Learning in BQ
+
+### [Week 4: Analytics Engineering and dbt](week04)
