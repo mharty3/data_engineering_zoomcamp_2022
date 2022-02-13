@@ -22,3 +22,4 @@
   - Machine Learning in BQ
 
 ### [Week 4: Analytics Engineering and dbt](week04)
+  - ETL vs ELT

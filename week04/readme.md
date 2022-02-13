@@ -12,4 +12,35 @@ Videos:
 
 * **ETL vs ELT**
 
+  * **ETL** - Extract transform load - Transform the data before loading it into the data warehouse
+  * **ELT** - Extract load transform - Use the compute within the data warehouse to transform the data
+
 ![elt vs etl](img/etl_vs_elt.PNG)
+
+* Kimballs Dimensional Modeling
+  * Deliver data that is understandable to the end user, but also optimize query performance
+  * Does not prioritize non-redundant data
+  * other approaches to compare to are Bill Immon or Data vault
+  * Elements:
+    * Fact tables - contain metrics, facts, or measurements. correspond to a business process. Think of verbs
+    * Dimensions tables - correspond to business entity, provides contect to a business process. think of nouns
+    * A fact table is usually "surrounded" by many dimension tables. This is referred to as a **Star Schema**
+  * Architecture:
+    * Staging area - raw data, only exposed to data or analytics engineers who know what to do with it. Think of raw ingrediant storage in a restaurant
+    * Processing area - this is where raw data is modeled. Think of the kitchen in a restaurant
+    * Presentation area - exposed to the business users. Think of the dining area in a restaurant
+
+### What is dbt
+[Video](https://www.youtube.com/watch?v=4eCouvVOJUw&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=35)
+* dbt or data build tool is a tool for transforming raw data that has been loaded into a warehouse so it can be exposed to BI applications or other business data consumers
+* it works by defining *models* as sql files that contain SELECT statements. dbt will compile the data and push the compute to the DW
+*  **dbt Core** Open source tool that allows for data transformation. Builds and runs the dbt project, includes SQL compilation logic, and a CLI to run dbt commands locally
+* **dbt CLoud** SaaS application to develop and maintain dbt projects. Free for individuals
+* For our class with the Big Query data warehouse, we will develop using the dbt cloud IDE.In Big Query. For postgres local database you will need to install dbt locally and connect it to the postgres db
+
+### Creating a dbt project from the beginning
+* This workshop requires green taxi data for 2019 and 2020 which I had not uploaded to the data warehouse yet. I needed to modify the dags to do so.
+    * I copy-pasted the [`yellow_taxi_ingestion_dag.py`](week03/airflow/dags/yellow_taxi_ingestion_dag.py) and created [`green_taxi_ingestion_dag.py`](week03/airflow/dags/green_taxi_ingestion_dag.py). A better practice would be to parameterize the single dag to read in fhv, yellow, and green taxi data. Maybe I will re-factor this at some point. 
+    * I did refacor and parameterize the `gcs_to_bq.py` dag but ran into issues because one of the columns (`ehail_fee`) in the green taxi data contains some null values, but the parquet file treated them as ints rather than floats. I took the advice of someone on slack and simply did not upload that column to the partitioned table by using an `EXCEPT` statement. Hopefully we don't need it!
+    
+* dbt provides a starte project with all the necessary files. The project is configured 
