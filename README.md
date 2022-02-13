@@ -16,3 +16,9 @@
  - Data Pipeline Orchestration with Airflow
 
 ### [Week 3: Data Warehouse and Big Query](week03)
+  - Basics of Data Warehousing and Big Query
+  - Ingesting data into BQ Data Warehouse with Airflow
+  - Optimizing performance and cost with partitioning and clustering in BQ
+  - Machine Learning in BQ
+
+### [Week 4: Analytics Engineering and dbt](week04)
