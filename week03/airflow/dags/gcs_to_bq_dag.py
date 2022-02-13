@@ -13,6 +13,8 @@ BUCKET = os.environ.get("GCP_GCS_BUCKET")
 
 TAXI_TYPES = {'yellow': {'partition_column': 'tpep_pickup_datetime',
                          'cluster_column': 'VendorID'},
+              'green': {'partition_column': 'lpep_pickup_datetime',
+                         'cluster_column': 'VendorID'},
               'fhv':    {'partition_column': 'dropoff_datetime',
                          'cluster_column': 'dispatching_base_num'}
 }
@@ -65,11 +67,19 @@ with DAG(
             },
         )
 
-        CREATE_PARTITION_QUERY = f"""CREATE OR REPLACE TABLE {BIGQUERY_DATASET}.{taxi_type}_tripdata_partitoned
-                                    PARTITION BY
-                                    DATE({partition_column}) 
-                                    CLUSTER BY {cluster_column} AS
-                                    SELECT * FROM {BIGQUERY_DATASET}.external_{taxi_type}_tripdata;"""
+        if taxi_type in ['yellow', 'fhv']:
+            CREATE_PARTITION_QUERY = f"""CREATE OR REPLACE TABLE {BIGQUERY_DATASET}.{taxi_type}_tripdata_partitoned
+                                PARTITION BY
+                                DATE({partition_column}) 
+                                CLUSTER BY {cluster_column} AS
+                                SELECT *  FROM {BIGQUERY_DATASET}.external_{taxi_type}_tripdata;"""
+
+        elif taxi_type == 'green':                        
+            CREATE_PARTITION_QUERY = f"""CREATE OR REPLACE TABLE {BIGQUERY_DATASET}.{taxi_type}_tripdata_partitoned
+                                        PARTITION BY
+                                        DATE({partition_column}) 
+                                        CLUSTER BY {cluster_column} AS
+                                        SELECT * EXCEPT (ehail_fee) FROM {BIGQUERY_DATASET}.external_{taxi_type}_tripdata;"""
 
         bq_ext_to_part_task = BigQueryInsertJobOperator(
             task_id=f"bq_ext_to_part_{taxi_type}_task",
