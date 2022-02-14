@@ -23,3 +23,5 @@
 
 ### [Week 4: Analytics Engineering and dbt](week04)
   - ETL vs ELT
+  - dbt basics
+  - transformations in the data warehouse and dbt Cloud

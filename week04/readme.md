@@ -42,5 +42,34 @@ Videos:
 * This workshop requires green taxi data for 2019 and 2020 which I had not uploaded to the data warehouse yet. I needed to modify the dags to do so.
     * I copy-pasted the [`yellow_taxi_ingestion_dag.py`](week03/airflow/dags/yellow_taxi_ingestion_dag.py) and created [`green_taxi_ingestion_dag.py`](week03/airflow/dags/green_taxi_ingestion_dag.py). A better practice would be to parameterize the single dag to read in fhv, yellow, and green taxi data. Maybe I will re-factor this at some point. 
     * I did refacor and parameterize the `gcs_to_bq.py` dag but ran into issues because one of the columns (`ehail_fee`) in the green taxi data contains some null values, but the parquet file treated them as ints rather than floats. I took the advice of someone on slack and simply did not upload that column to the partitioned table by using an `EXCEPT` statement. Hopefully we don't need it!
+* I created an account for dbt Cloud and created service account credentials in cloud console with access to big query. I also created a new [repository](https://github.com/mharty3/dbt_project_DEZC_2022) to hold the dbt project and added a deploy key to allow dbt Cloud to push code to the repo
+* I defined a schema for the staging area in the dwh that will house staging views:
+
+    ```yml
+    version: 2
+
+    sources:
+        - name: staging
+          database: data-eng-zoomcamp-339102
+          schema: trips_data_all
+
+          tables:
+            - name: green_tripdata_partitoned
+            - name: yellow_tripdata_partitoned
+    ```
+
+   and generated an intial query using jinja templating.
+
+   ```python
+   {{ config(materialized='view') }}
+
+    select * from {{ source('staging', 'green_tripdata_partitoned') }}
+
+    limit 100
+    ```
+
+
     
-* dbt provides a starte project with all the necessary files. The project is configured 
+* Running the model gave me an error because dbt tried creating a new schema on my bq called `dbt_mharty` in multi-region US, which is different from the trips_data_all_schema:
+`404 Not found: Dataset data-eng-zoomcamp-339102:trips_data_all was not found in location US`
+This was fixed by deleting the schema in the google cloud console and then re-creating it with the same name and defining the location to be the same as the location of my `trips_data_all` schema. (`us-central1`). dbt created the schema using default location and it was wrong.
