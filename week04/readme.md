@@ -72,4 +72,65 @@ Videos:
     
 * Running the model gave me an error because dbt tried creating a new schema on my bq called `dbt_mharty` in multi-region US, which is different from the trips_data_all_schema:
 `404 Not found: Dataset data-eng-zoomcamp-339102:trips_data_all was not found in location US`
-This was fixed by deleting the schema in the google cloud console and then re-creating it with the same name and defining the location to be the same as the location of my `trips_data_all` schema. (`us-central1`). dbt created the schema using default location and it was wrong.
+This was fixed by deleting the schema in the google cloud console and then re-creating it with the same name and defining the location to be the same as the location of my `trips_data_all` schema. (`us-central1`). dbt created the schema using default location and it was wrong. 
+* After fixing this error. It works and creates a view.
+* The next step is to replace the * in the query to select the columns. Here we are using `cast()` statements to set the proper datatypes, and renaming some columns to match between datasets. For example renaming `lpep_dropoff_time` to `dropoff_time.
+
+#### Macros
+
+* Macros are like functions in other programming languages. They take inputs and return compiled code. They are used to abstract reusable sql code into reusable chunks
+* Below is an example declaration of a macro called `get_payment_type_description`. It takes the input of `payment_type` and generates a case when statement in SQL.
+
+  ```python
+  {#
+      This is a comment block
+      This macro returns the description of the payment_type 
+  #}
+
+  {% macro get_payment_type_description(payment_type) -%}
+
+      case {{ payment_type }}
+          when 1 then 'Credit card'
+          when 2 then 'Cash'
+          when 3 then 'No charge'
+          when 4 then 'Dispute'
+          when 5 then 'Unknown'
+          when 6 then 'Voided trip'
+      end
+
+  {%- endmacro %}
+  ```
+
+* Macros are stored in the macros directory of the dbt project
+
+#### Packages
+
+* Similar to python packages, there are dbt packages that contain useful macros. You can find packages on the dbt package hub or on github
+* To use packages, we need to define a packages.yml file in the root of the project:
+
+```yml
+packages:
+  - package: dbt-labs/dbt_utils
+    version: 0.8.0
+```
+
+* Then run the command `dbt_deps` which will scan the packages.yml file and install all required dependencies
+* We use the `dbt_utils.surrogate_key` macro to create a unique identifier for each trip
+
+#### Variables
+
+* Variables can be defined in the project.yml file or as command line arguments (using the --var flag) when running dbt models.
+* We will use a variable in our case to distinguish between a testing run or a run on the full dataset by placing an if statement in a code chunk with the limit statement.
+Now if we use the dbt run command with the flag `--var 'is_test_run: false'`, it will not insert the limit statement 
+
+
+```yml
+{% if var('is_test_run', default=true) %}
+
+  limit 100
+
+{% endif %}
+```
+
+#### Yellow trip data
+* Copy and paste the model from the course github repo for the yellow taxi data
