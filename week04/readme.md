@@ -134,3 +134,28 @@ Now if we use the dbt run command with the flag `--var 'is_test_run: false'`, it
 
 #### Yellow trip data
 * Copy and paste the model from the course github repo for the yellow taxi data
+* I commented out the ehail column, because I am removing that data
+
+#### Seeds
+* Seeds are CSV files in your dbt project (typically in your seeds directory), that dbt can load into your data warehouse using the dbt seed command.
+* Seeds can be referenced in downstream models the same way as referencing models — by using the ref function.
+* Because these CSV files are located in your dbt repository, they are version controlled and code reviewable. Seeds are best suited to static data which changes infrequently.
+* Good use-cases for seeds:
+  * A list of mappings of country codes to country names
+  * A list of test emails to exclude from analysis
+  * A list of employee account IDs
+
+* Poor use-cases of dbt seeds:
+  * Loading raw data that has been exported to CSVs
+  * Any kind of production data containing sensitive information. For example personal identifiable information (PII) and passwords.
+
+* We will load the mappings from taxi data zone id to taxi zone name as a seed
+* In the cloud, there is no convenient way to upload csv files, so create an empty file, and copy paste the data in there.
+* The file is [here](mharty3/data_engineering_zoomcamp_2022/week01/docker-sql/taxi+_zone_lookup.csv)
+* Run the command `dbt seed`. It will create the table in the data warehouse determining data types by default
+* If we need to, we can define the datatypes in the `dbt_project.yml` file
+* if you change the seed file and need to do a full refresh of the table, run `dbt seed --full-refresh`
+* Now we can create a model based on the seed. Create the model `dim_zones.sql` in the `core` directory
+
+
+#### 
