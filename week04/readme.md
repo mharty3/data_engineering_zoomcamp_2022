@@ -32,6 +32,7 @@ Videos:
 
 ### What is dbt
 [Video](https://www.youtube.com/watch?v=4eCouvVOJUw&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=35)
+[dbt Project Repo](https://github.com/mharty3/dbt_project_DEZC_2022)
 * dbt or data build tool is a tool for transforming raw data that has been loaded into a warehouse so it can be exposed to BI applications or other business data consumers
 * it works by defining *models* as sql files that contain SELECT statements. dbt will compile the data and push the compute to the DW
 *  **dbt Core** Open source tool that allows for data transformation. Builds and runs the dbt project, includes SQL compilation logic, and a CLI to run dbt commands locally
