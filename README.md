@@ -26,3 +26,5 @@
   - dbt basics
   - transformations in the data warehouse and dbt Cloud
   - [dbt Project Repo](https://github.com/mharty3/dbt_project_DEZC_2022)
+  - Dashboards in Google Data Studio
+    - ![](week04/img/taxi_trips_per_day_graph.PNG)

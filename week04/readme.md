@@ -159,4 +159,16 @@ Now if we use the dbt run command with the flag `--var 'is_test_run: false'`, it
 * Now we can create a model based on the seed. Create the model `dim_zones.sql` in the `core` directory
 
 
-#### 
+#### Core Models
+* Now we can make the core model to build the analytics ready table 'fact_trips`. See the model [here](https://github.com/mharty3/dbt_project_DEZC_2022/blob/main/models/core/fact_trips.sql)
+![](img/dependency_dag.PNG)
+
+#### Homework FHV Models
+* For the homework, I replicated the process in the videos with the FHV data to create a [fact table for fhv trips](https://github.com/mharty3/dbt_project_DEZC_2022/blob/main/models/core/fact_fhv_trips.sql).
+* See [my homework answers here](homework.md)
+![](img/fhv_lineage.PNG)
+
+## Google Data Studio
+* [Video](https://www.youtube.com/watch?v=39nLTs74A3E&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=43)
+* Connect [Google Data Studio(https://datastudio.google.com/) to the BQ data warehouse and make some dashboard/visualizations
+![](img/taxi_trips_per_day_graph.PNG)
