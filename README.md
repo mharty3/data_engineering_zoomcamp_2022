@@ -28,3 +28,9 @@
   - [dbt Project Repo](https://github.com/mharty3/dbt_project_DEZC_2022)
   - Dashboards in Google Data Studio
     - ![](week04/img/taxi_trips_per_day_graph.PNG)
+
+### [Week 5: Batch Processing](week05)
+  - Batch vs Streaming
+  - Installing Spark
+  - Spark SQL and DataFrames
+  - Spark Internals
