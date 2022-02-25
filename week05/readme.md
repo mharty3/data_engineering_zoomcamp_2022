@@ -31,6 +31,7 @@
 * Solutions like Hive or Presto/Athena can allow you to use SQL in the data lake. That solution is often better than Spark. When it is not possible, (in machine learning for example), use spark
 
 ## Installing Spark on Linux
+[Video](https://www.youtube.com/watch?v=hqUbB9c8sKg&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=49)
 [Instructions](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_5_batch_processing/setup/linux.md)
 
 * Install Java Open JDK 11. Spark requires version 8 or 11. Note, this is not the most recent version of Java!
