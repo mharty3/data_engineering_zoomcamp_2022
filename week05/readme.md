@@ -120,3 +120,6 @@ See the notebook [here](code/pyspark_firstlook.ipynb)
 ## Spark Data Frames
 [Video](https://www.youtube.com/watch?v=ti3aC1m3rE8&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=51)
 
+* See the notebook linked above
+* A key benefit of spark is that it is more flexible than SQL. It has user defined functions (udf) you can use more complicated logic than SQL. Complex python code is also easier to maintain and test.
+* Defining udfs in SQL in the data warehouse can be cumbersome
