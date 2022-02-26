@@ -108,4 +108,15 @@ Also test writing files
 df.write.parquet('zones')
 ```
 
-* Also forward port 4040 using vs code to see the Spark Jobs that have been run
+* Also forward port 4040 using vs code to see the Spark Jobs that have been run in the spark master UI
+
+## First look at Pyspark
+[Video](https://www.youtube.com/watch?v=r_Sf6fCB40c&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=50)
+
+* Reading csv files, partitioning data frames for more efficient processing by the workers, writing to parquet files
+
+See the notebook [here](code/pyspark_firstlook.ipynb)
+
+## Spark Data Frames
+[Video](https://www.youtube.com/watch?v=ti3aC1m3rE8&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=51)
+
