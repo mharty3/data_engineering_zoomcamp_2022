@@ -123,3 +123,43 @@ See the notebook [here](code/pyspark_firstlook.ipynb)
 * See the notebook linked above
 * A key benefit of spark is that it is more flexible than SQL. It has user defined functions (udf) you can use more complicated logic than SQL. Complex python code is also easier to maintain and test.
 * Defining udfs in SQL in the data warehouse can be cumbersome
+
+## SQL With Spark
+[Video](https://www.youtube.com/watch?v=uAlp2VuZZPY&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=53)
+
+* Download the yellow and green taxi data for 2020 and 2021. There is a bash script and a notebook to run to download all of the csvs and convert them to parquet files.
+* This [notebook](week05/code/06_pyspark_sql.ipynb) demonstrates how you can execute SQL using spark
+* It also shows how to write parquet files using `coalesce` which is the opposite of `repartition`
+* Reading and writing files like this allows us to use spark inside of the data lake without having to load the data to the data warehouse
+
+## Spark Internals
+[Video](https://www.youtube.com/watch?v=68CipcZt7ZA&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=54)
+* So far we have only used spark "locally." We have been using the following code to set up the session. Notice the `.master("local[*]"). More typically, spark jobs are submtted from a driver on your laptop or Airflow worker to a cluster running on the cloud.
+
+```python
+spark = SparkSession.builder \
+    .master("local[*]") \
+    .appName('test') \
+    .getOrCreate()
+```  
+![](img/spark_cluster.PNG) 
+
+* The cluster consists of several node computers, the first is the *master* which is in charge of coordinating the work among all of the *executor* nodes. If one executor fails, the master can reassign the task to a different executor.
+* Dataframes are typically stored in parquet files in the same data center (S3 or GCP) as the cluster so file transfer is very fast. This is in contrast to Hadoop archetecture which stored the data on the executors. Hadoop is not as popular as it used to be
+
+## GroupBy in Spark
+[Video](https://www.youtube.com/watch?v=68CipcZt7ZA&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=55)
+* Because data is partitioned among clusters in spark, GroupBy must take place in two stages.
+* First data within each partition is grouped and aggregated producting an intermediate result from each partition
+![](img/gb_stage_1.PNG)
+
+* The second step is a *reshuffling* step where data in the intermedidate results is shuffled around to be sure the all instances of a given key of the groupby are present on the same partition. The algorithm to do this is called *external merged sort*. Then each partition is grouped again
+
+![](img/gb_stage_2.PNG)
+
+## Joins in Spark
+[Video](https://www.youtube.com/watch?v=lu7TrqAWuH4&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=56)
+* Joins require a similar phase of reshuffling to group by. Records with the same join key(s) are reshuffled to be on the same partition, and then each partition is reduced in the join step
+![](img/spark_join_1.PNG)
+* Joining a small table to a large table is much faster than joining two large tables because in this case, merge sort is not required. Each executor gets a copy of the smaller table and can lookup the join value and append to each record
+
