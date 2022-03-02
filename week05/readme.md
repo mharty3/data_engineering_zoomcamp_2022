@@ -163,3 +163,5 @@ spark = SparkSession.builder \
 ![](img/spark_join_1.PNG)
 * Joining a small table to a large table is much faster than joining two large tables because in this case, merge sort is not required. Each executor gets a copy of the smaller table and can lookup the join value and append to each record
 
+# Homework
+See [homework](code/Homework.ipynb)
