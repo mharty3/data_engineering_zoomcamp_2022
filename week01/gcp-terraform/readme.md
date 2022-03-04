@@ -73,6 +73,31 @@
         * this will create the resources in google cloud and you can see them in the cloud console!!!
     * `terraform destroy` - Remove your stack from the cloud. This is very useful when developing. You can tear down the environment at the end of the day so you are not charged for running the resources when you aren't using them, and then re-apply them the next day. A big advantage of using something like terraform.
 
+
+### Execution
+
+```shell
+# Refresh service-account's auth-token for this session
+gcloud auth application-default login
+
+# Initialize state file (.tfstate)
+terraform init
+
+# Check changes to new infra plan
+terraform plan -var="project=<your-gcp-project-id>"
+```
+
+```shell
+# Create new infra
+terraform apply -var="project=<your-gcp-project-id>"
+```
+
+```shell
+# Delete infra after your work, to avoid costs on any running services
+terraform destroy
+```
+
+
 # Setting up VM environment on GCP
 
 * [Video](https://www.youtube.com/watch?v=ae-CV2KfoN0&list=PL3MmuxUbc_hJed7dXYoJw8DoCuVHhGEQb&index=12)
